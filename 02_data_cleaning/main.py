@@ -1,6 +1,7 @@
 import pandas as pd 
 import re
 import numpy as np
+from datetime import datetime
 
 name_cols = {'Title' : 'title',
             'price' : 'price_total',
@@ -18,7 +19,7 @@ name_cols = {'Title' : 'title',
 main_path = 'result'
 
 # Load the data
-df = pd.read_csv(main_path + '/ads_data_2025-06-16_16-27-22.csv')
+df = pd.read_csv(main_path + '/ads_data_2025-06-18_13-59-54.csv')
 
 df.columns # column names
 df.head()  # first 5 rows
@@ -48,7 +49,7 @@ df.isna().sum() # axis=0
 df.isna().sum(axis=1)
 
 # dropna
-df.dropna(subset=['Талбай:','Барилгын явц:'],how='all')
+df.dropna(subset=['Талбай:'],how='all')
 
 # Duplicates
 df.duplicated() # if duplicated
@@ -66,7 +67,6 @@ df.drop_duplicates(subset=['id', 'date'], keep='first',inplace=True)
 
 # rename columns
 df.rename(columns=name_cols, inplace=True)
-df.drop(columns=['location:','Байршил:'], inplace=True)
 
 # AREA and PRICE
 df[['price_total','size']]
@@ -104,9 +104,9 @@ df[df['p_int'] == pd.Interval(15, 20, closed='right')]
 
 
 # correct price for 8797210
-df[df['ad_id'] == 8797210]
+# df[df['ad_id'] == 8797210]
 
-df.loc[df['ad_id'] == 8797210,'price'] = 250
+
 
 
 # area interval
@@ -118,13 +118,12 @@ df['a_int'].value_counts().sort_values()
 df[df['a_int'] == pd.Interval(400, np.inf, closed='right')]
 df[df['a_int'] == pd.Interval(-0.001, 10, closed='right')]
 
-df.loc[df['ad_id'] == 8744513,'area'] = 50.65
-df.loc[df['ad_id'] == 8746788,'area'] = 40.22
+# df.loc[df['ad_id'] == 8744513,'area'] = 50.65
 
 
 # remove outliers
 df = df[df['area'] > 10]
-df = df[df['area'] < 400]
+df = df[df['area'] < 800]
 
 df = df[(df['price'] < 15) | (df['price'] > 50)] # remove irregular prices, 15-50
 
@@ -142,7 +141,7 @@ p_int = [-np.inf,1,2,5,10,15,np.inf]
 df['p2_int'] = pd.cut(df['price_m2'], bins=p_int, include_lowest=True)
 df['p2_int'].value_counts().sort_values()
 
-df[df['price_m2']<=1][['price_total','price','area','price_m2','title','ad_id','ad_text']]
+df[df['price_m2']<=3][['price_total','price','area','price_m2','title','ad_id','ad_text']]
 
 df.loc[df['ad_id'] == 8525257,'price'] = 994.4
 df.loc[df['ad_id'] == 8706949,'price'] = 520
@@ -166,9 +165,55 @@ df['mylocation'].isna().sum()
 
 df[df['mylocation'].isna()][['location','mylocation']]
 
+# name.xlsx-ийг ачаалж, dictionary болгох
+replace_df = pd.read_excel(main_path + '/input/name.xlsx', header=1)
+replace_df.columns = ['title', 'mytitle']  
+replace_dict = dict(zip(replace_df['title'], replace_df['mytitle']))
+
+# Функц: title болон ad_text баганыг шалгаж, тохирсон mytitle-г буцаана
+def find_office_name(row):
+    texts = []
+    if isinstance(row['title'], str):
+        texts.append(row['title'].lower())
+    if isinstance(row['ad_text'], str):
+        texts.append(row['ad_text'].lower())
+
+    for key, value in replace_dict.items():
+        key_lower = str(key).lower()
+        if any(key_lower in text for text in texts):
+            return value
+    return None
+
+# apply хийхдээ axis=1 (бүх мөрөнд нэг нэгээр нь) ашиглана
+df['mytitle'] = df.apply(find_office_name, axis=1)
 
 df.groupby('mylocation').agg({'price_m2':['median','min','max','count']}).sort_values(by=('price_m2','median'), ascending=False)
 
 df[(df['mylocation'] == 'Хүннү') & (df['price_m2'] < 5)][['ad_text','title','location','price_m2','area']]
 
-df.to_csv("Clean.csv", index=False, encoding='utf-8-sig')
+import util as ut 
+
+ #District name
+df['district'] = df['location'].apply(ut.get_district)
+
+#Khoroo
+df['khoroo'] = df['location'].apply(ut.get_khoroo)
+
+
+
+df1 = df[['ad_id','date', 'title', 'ad_text', 'district', 'khoroo','mylocation','price','area','price_m2','url', 'clean_coords', 'location','progress_cons', 'mytitle']]
+    
+# Одоогийн огноо, цагийг авах
+current_time = datetime.now()
+formatted_time = current_time.strftime("%Y-%m-%d")  # Жишээ: 2025-01-05_15-30-45
+
+# Файлын нэр үүсгэх
+file_name = f"ads_data_{formatted_time}_allsheet.csv"
+
+# CSV файлд хадгалах
+df1.to_csv(file_name, index=False, encoding='utf-8-sig')
+
+df_price = df.groupby(['district', 'khoroo']).agg({'price_m2':['median','min','max','count']})
+df_price = df.groupby(['district']).agg({'price_m2':['median','min','max','count']})
+df_price_reset = df_price.reset_index()
+df_price_reset.to_csv('index.csv', index=False, encoding='utf-8-sig')

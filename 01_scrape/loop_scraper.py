@@ -11,7 +11,7 @@ import re
 def collect_ad_details(page_number, driver ):
 
     main_url = 'https://www.unegui.mn/l-hdlh/l-hdlh-zarna/azhlyin-bajroffis-zarna/'
-    url = main_url + f'/?page={page_number}&ordering=newest'
+    url = f'{main_url}?page={page_number}&ordering=newest'
     driver.get(url)
 
     data_list = []
@@ -111,7 +111,7 @@ driver = webdriver.Chrome(options=chrome_options)
     
     
 all_data = []
-for page in range(1, 19): # Хуудас нэмэх хэрэгтэй бол 3-г өөрчлөнө
+for page in range(1, 20): # Хуудас нэмэх хэрэгтэй бол 3-г өөрчлөнө
     all_data.extend(collect_ad_details(page, driver))
 
 # DataFrame үүсгэх

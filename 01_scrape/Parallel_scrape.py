@@ -13,11 +13,11 @@ def collect_ad_details(page_number):
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
     main_url = 'https://www.unegui.mn/l-hdlh/l-hdlh-zarna/azhlyin-bajroffis-zarna/'
-    url = main_url + f'/?page={page_number}&ordering=newest'
+    url = f'{main_url}?page={page_number}&ordering=newest'
     driver.get(url)
 
     data_list = []
-    for ad_number in range(1, 61):  # 1-ээс 2 хүртэлх зараас мэдээлэл авах
+    for ad_number in range(1, 5):  # 1-ээс 2 хүртэлх зараас мэдээлэл авах
         
         print(f"Page: {page_number} Ad: {ad_number}" )
         
@@ -107,7 +107,7 @@ def collect_ad_details(page_number):
     return data_list
 
 # Parallel ашиглах
-pages = list(range(1, 20))  # 
+pages = list(range(1, 5))  # 
 all_data = Parallel(n_jobs=4)(delayed(collect_ad_details)(page) for page in pages)
 
 # Бүх өгөгдлийг нэгтгэх
