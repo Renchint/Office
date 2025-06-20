@@ -111,7 +111,7 @@ driver = webdriver.Chrome(options=chrome_options)
     
     
 all_data = []
-for page in range(1, 20): # Хуудас нэмэх хэрэгтэй бол 3-г өөрчлөнө
+for page in range(1, 5): # Хуудас нэмэх хэрэгтэй бол 3-г өөрчлөнө
     all_data.extend(collect_ad_details(page, driver))
 
 # DataFrame үүсгэх
