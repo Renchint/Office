@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import numpy as np
 from datetime import datetime
+import editdistance  # Install using: pip install editdistance
 
 name_cols = {'Title' : 'title',
             'price' : 'price_total',
@@ -32,12 +33,13 @@ df[cols[5:10]]
 df[cols[10:20]]
 df[cols[20:]]
 
+
+
 df.info() # data types and missing values
 df['price']
 df['Талбай:']
 
-# fillna
-# df['phone'] = df['phone'].fillna('99119911') 
+# Drop unnecessary columns
 df = df.drop(columns='phone')
 df = df.drop(columns='Төлбөрийн нөхцөл:')
 df = df.drop(columns='page_number')
@@ -49,7 +51,7 @@ df.isna().sum() # axis=0
 df.isna().sum(axis=1)
 
 # dropna
-df.dropna(subset=['Талбай:'],how='all')
+df.dropna(subset=['Талбай:','Барилгын явц:'],how='all')
 
 # Duplicates
 df.duplicated() # if duplicated
@@ -82,7 +84,7 @@ df[['price','price_total']]
 df[['price','price_total']].dtypes
 
 # terbum
-mask = df['price_total'].str.contains('бум', na=False) & (df['price'] < 10)
+mask = df['price_total'].str.contains('бум', na=False) & (df['price'] < 16)
 df.loc[mask, 'price'] = df.loc[mask, 'price'] * 1000
 
 df['price'].describe()
@@ -156,7 +158,7 @@ df = df[df['price_m2'] <= 15]
 
 
 # location 
-df_loc = pd.read_csv(main_path + '/input/location.csv')
+df_loc = pd.read_csv('D:/Projects/Office/02_data_cleaning/input/location.csv')
 
 df = df.merge(df_loc, how='left', on='location')
 
@@ -166,7 +168,7 @@ df['mylocation'].isna().sum()
 df[df['mylocation'].isna()][['location','mylocation']]
 
 # name.xlsx-ийг ачаалж, dictionary болгох
-replace_df = pd.read_excel(main_path + '/input/name.xlsx', header=1)
+replace_df = pd.read_excel('D:/Projects/Office/02_data_cleaning/input/name.xlsx', header=1)
 replace_df.columns = ['title', 'mytitle']  
 replace_dict = dict(zip(replace_df['title'], replace_df['mytitle']))
 
@@ -201,7 +203,9 @@ df['khoroo'] = df['location'].apply(ut.get_khoroo)
 
 
 
-df1 = df[['ad_id','date', 'title', 'ad_text', 'district', 'khoroo','mylocation','price','area','price_m2','url', 'clean_coords', 'location','progress_cons', 'mytitle']]
+
+
+df1 = df[['ad_id','date', 'mytitle', 'title', 'ad_text', 'district', 'khoroo','mylocation','price','area','price_m2', 'location','progress_cons', 'url', 'clean_coords']]
     
 # Одоогийн огноо, цагийг авах
 current_time = datetime.now()
