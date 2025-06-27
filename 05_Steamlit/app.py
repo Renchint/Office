@@ -77,7 +77,7 @@ if not matched_row.empty:
     st_folium(m, width=700, height=500)
 
 else:
-    st.warning("Мэдээлэл олдсонгүй.")
+    st.warning("Мэдээлэл олдсонгүй.")dd
 
 # Барьцаа хөрөнгийн хаяг
 col1, col2 = st.columns([3, 1])  # Баруун талд жижиг багана үүсгэв
