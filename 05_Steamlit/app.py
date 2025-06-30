@@ -3,7 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
-df = pd.read_excel('Negtgel_office.xlsx', sheet_name="2", header=1)
+df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
 
 st.title("Барилга объектын мэдээлэл оруулах апп")
 
