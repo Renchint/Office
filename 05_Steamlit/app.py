@@ -117,7 +117,7 @@ with col1:
 # Цонхны байрлал
     orientation = st.selectbox(
         "Нийт цонхны 50%-аас дээш нь урд болон баруун зүг рүү харсан уу?",
-        ["Үгүй", "Тийм"]
+        [ "Тийм", "Үгүй"]
     )
 
     orientation_value = 1 if orientation == "Тийм" else 0.95
