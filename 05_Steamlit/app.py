@@ -120,7 +120,7 @@ with col1:
         ["Үгүй", "Тийм"]
     )
 
-    orientation_value = 0.95 if orientation == "Тийм" else 1
+    orientation_value = 1 if orientation == "Тийм" else 0.95
     #st.write("Засварын утга:", orientation_value)
 
 with col2:
