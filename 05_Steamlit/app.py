@@ -3,7 +3,8 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
-df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
+#df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
+df = pd.read_excel('Negtgel_office.xlsx', sheet_name="2", header=1)
 
 st.title("Барилга объектын мэдээлэл оруулах апп")
 
@@ -72,12 +73,13 @@ if not matched_row.empty:
         # Сонголт хийх
         selected_floor = st.selectbox("Оффисын давхар сонгоно уу:", floor_options)
 
-            # Коэффициент тооцоолох
+        # Коэффициент тооцоолох
         if selected_floor == 'B1 (Доод давхар)' or selected_floor == 'Техникийн давхар':
             selected_floor_value = 0
+            st.warning("Хөрөнгийн үнэлгээчинд хандана уу")
         else:
             selected_floor_value = 1
-        
+                
 
     # OpenStreetMap үүсгэх
     m = folium.Map(location=[row['lat'], row['lon']], zoom_start=17, tiles='OpenStreetMap')
