@@ -3,7 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
-df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
+df = pd.read_excel('Negtgel_office.xlsx', sheet_name="2", header=1)
 
 st.title("Барилга объектын мэдээлэл оруулах апп")
 
@@ -24,6 +24,9 @@ else:
 
 # Барьцаа хөрөнгийн хаяг
 adress = st.text_input("Барьцаа хөрөнгийн хаяг:")
+
+# Координат
+coord = st.text_input("Координат")
 
 # Барьцаа хөрөнгийн улсын бүртгэлийн дугаар
 collateral_reg_num = st.text_input("Барьцаа хөрөнгийн улсын бүртгэлийн дугаар")
@@ -61,22 +64,20 @@ if not matched_row.empty:
         )
 
     with col2:
-        try:
-            total_floors = int(row['Нийт давхарын тоо'])
-            # Эхлээд тусгай давхаруудыг жагсаалтанд нэмэх
-            floor_options = ['B1 (Доод давхар)'] + list(range(1, total_floors + 1)) + ['Техникийн давхар']
-            
-            # Сонголт хийх
-            selected_floor = st.selectbox("Оффисын давхар сонгоно уу:", floor_options)
 
-                # Коэффициент тооцоолох
-            if selected_floor == 'B1 (Доод давхар)' or selected_floor == 'Техникийн давхар':
-                selected_floor_value = 0
-            else:
-                selected_floor_value = 1
-        except:
-            st.warning("Нийт давхарын тоо тодорхойгүй байна, давхар сонгох боломжгүй.")
+        total_floors = int(row['Нийт давхарын тоо'])
+        # Эхлээд тусгай давхаруудыг жагсаалтанд нэмэх
+        floor_options = ['B1 (Доод давхар)'] + list(range(1, total_floors + 1)) + ['Техникийн давхар']
+        
+        # Сонголт хийх
+        selected_floor = st.selectbox("Оффисын давхар сонгоно уу:", floor_options)
 
+            # Коэффициент тооцоолох
+        if selected_floor == 'B1 (Доод давхар)' or selected_floor == 'Техникийн давхар':
+            selected_floor_value = 0
+        else:
+            selected_floor_value = 1
+        
 
     # OpenStreetMap үүсгэх
     m = folium.Map(location=[row['lat'], row['lon']], zoom_start=17, tiles='OpenStreetMap')
