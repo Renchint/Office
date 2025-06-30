@@ -22,8 +22,10 @@ elif loan_purpose == "Шуурхай үээл":
 else:
     loan_purpose_value = 1
 
-
 # Барьцаа хөрөнгийн хаяг
+adress = st.text_input("Барьцаа хөрөнгийн хаяг:")
+
+# Барьцаа хөрөнгийн улсын бүртгэлийн дугаар
 collateral_reg_num = st.text_input("Барьцаа хөрөнгийн улсын бүртгэлийн дугаар")
 
 # Дүүрэг сонгох
@@ -66,9 +68,14 @@ if not matched_row.empty:
             
             # Сонголт хийх
             selected_floor = st.selectbox("Оффисын давхар сонгоно уу:", floor_options)
+
+                # Коэффициент тооцоолох
+            if selected_floor == 'B1 (Доод давхар)' or selected_floor == 'Техникийн давхар':
+                selected_floor_value = 0
+            else:
+                selected_floor_value = 1
         except:
             st.warning("Нийт давхарын тоо тодорхойгүй байна, давхар сонгох боломжгүй.")
-
 
 
     # OpenStreetMap үүсгэх
@@ -156,7 +163,7 @@ if not matched_row.empty:
     base_price = matched_row.iloc[0]['Үнэлгээ']
     
     # --- 5. Эцсийн үнэлгээ тооцох ---
-    mkw = base_price * zaswar_value * orientation_value * orchin_value
+    mkw = base_price * zaswar_value * orientation_value * orchin_value * selected_floor_value
 
     # --- 6. Үр дүн харуулах ---
     st.success(f"Оффиссын 1м2 талбай суурь үнэлгээ: {mkw:,.0f} ₮")
