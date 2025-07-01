@@ -43,7 +43,9 @@ selected_khoroo = st.selectbox("Хороо сонгоно уу:", khoroo_options
 
 # Байрны дугаар сонгох
 filtered_df2 = filtered_df[filtered_df['Хороо'] == selected_khoroo]
-bair_options = filtered_df2['Байрны дугаар'].dropna().unique().tolist()
+bair_options = sorted(filtered_df2['Байрны дугаар'].dropna().unique().tolist(),
+    key=lambda x: str(x))
+
 selected_bair = st.selectbox("Байрны дугаар сонгоно уу:", bair_options)
 
 # Байрны мэдээллүүдийг харуулах, байрны давхар сонгох
@@ -67,18 +69,20 @@ if not matched_row.empty:
     with col2:
 
         total_floors = int(row['Нийт давхарын тоо'])
-        # Эхлээд тусгай давхаруудыг жагсаалтанд нэмэх
+
+        # Давхрын сонголтууд
         floor_options = ['B1 (Доод давхар)'] + list(range(1, total_floors + 1)) + ['Техникийн давхар']
-        
-        # Сонголт хийх
         selected_floor = st.selectbox("Оффисын давхар сонгоно уу:", floor_options)
 
-        # Коэффициент тооцоолох
+        # Коэффициент тооцоолол
         if selected_floor == 'B1 (Доод давхар)' or selected_floor == 'Техникийн давхар':
             selected_floor_value = 0
-            st.warning("Хөрөнгийн үнэлгээчинд хандана уу")
+            st.warning("Хөрөнгийн үнэлгээчинд хандана уу.")
+        elif selected_floor == 1 or selected_floor == total_floors:
+            selected_floor_value = 0.95
         else:
-            selected_floor_value = 1
+            selected_floor_value = 1.0
+
                 
 
     # OpenStreetMap үүсгэх
@@ -101,6 +105,25 @@ col1, col2 = st.columns([3, 1])  # Баруун талд жижиг багана
 
 with col1:
     area_input = st.text_input("Талбайн хэмжээ оруулна уу (м²):")
+    
+    area_input_value = 1  # default утга өгч байна
+   
+    if area_input:
+        try:
+            area_value = float(area_input)  # string-ийг float болгон хөрвүүлж байна
+            if area_value <= 200:
+                area_input_value = 1
+            elif 200 < area_value <= 300:
+                area_input_value = 0.95
+            elif 300 < area_value <= 400:
+                area_input_value = 0.90
+            elif area_value > 400:
+                area_input_value = 0.85
+            else:
+                area_input_value = 1
+        except ValueError:
+            st.error("Талбайн хэмжээ зөв тоогоор оруулна уу.")
+
 
 with col2:
     if area_input:
@@ -109,6 +132,7 @@ with col2:
             st.success(f"Таны оруулсан талбай {area} м²")
         else:
             st.error("Зөвхөн тоон утга оруулна уу!")
+
 
 # Засвар хийх шаардлагатай эсэх
 zaswar = st.selectbox(
@@ -129,7 +153,6 @@ with col1:
         "Нийт цонхны 50%-аас дээш нь урд болон баруун зүг рүү харсан уу?",
         [ "Тийм", "Үгүй"]
     )
-
     orientation_value = 1 if orientation == "Тийм" else 0.95
     #st.write("Засварын утга:", orientation_value)
 
@@ -166,12 +189,12 @@ if not matched_row.empty:
     base_price = matched_row.iloc[0]['Үнэлгээ']
     
     # --- 5. Эцсийн үнэлгээ тооцох ---
-    mkw = base_price * zaswar_value * orientation_value * orchin_value * selected_floor_value
+    mkw = base_price * zaswar_value * orientation_value * orchin_value * selected_floor_value * area_input_value
 
     # --- 6. Үр дүн харуулах ---
     st.success(f"Оффиссын 1м2 талбай суурь үнэлгээ: {mkw:,.0f} ₮")
 else:
-    st.warning("⚠️ Сонгосон мэдээлэлд тохирох үнэлгээ олдсонгүй.")
+    st.warning("Сонгосон мэдээлэлд тохирох үнэлгээ олдсонгүй.")
 
 
 if area_input:
@@ -184,6 +207,6 @@ if area_input:
         st.info(f"Зээл зөвшөөрөх дээд үнэ: {zzdu:,.0f} ₮")
 
     except ValueError:
-        st.error("📏 Талбайн хэмжээг зөв оруулна уу (тоо хэлбэрээр).")
+        st.error("Талбайн хэмжээг зөв оруулна уу (тоо хэлбэрээр).")
 else:
-    st.warning("📏 Талбайн хэмжээг оруулна уу.")
+    st.warning("Талбайн хэмжээг оруулна уу.")
