@@ -2,11 +2,14 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
+from datetime import date
 
-df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
-#df = pd.read_excel('Negtgel_office.xlsx', sheet_name="2", header=1)
+#df = pd.read_excel('05_Steamlit/Negtgel_office.xlsx', sheet_name="2", header=1)
+df = pd.read_excel('Negtgel_office.xlsx', sheet_name="2", header=1)
 
 st.title("Оффисын үнэлгээний аргачлал")
+
+st.subheader('Мэдээлэл оруулах хэсэг:')
 
 # Зээл хүсэгчийн нэр
 customer_name = st.text_input("Зээл хүсэгчийн нэр")
@@ -178,6 +181,8 @@ with col2:
 
     #st.write("Очины үнэлгээ:", orchin_value)
 
+st.subheader('Үнэлгээ:')
+
 # ТОХИРСОН ҮНЭЛГЭЭГ АВАХ
 matched_row = df[
     (df['Дүүрэг'] == selected_district) &
@@ -210,3 +215,15 @@ if area_input:
         st.error("Талбайн хэмжээг зөв оруулна уу (тоо хэлбэрээр).")
 else:
     st.warning("Талбайн хэмжээг оруулна уу.")
+
+
+###БАТАЛГААЖУУЛАЛТ: 
+st.subheader('Баталгаажуулалт:')
+branch = st.text_input("Салбар, ТТ:")
+hyansan = st.text_input("Хянасан салбарын эрхлэгч:")
+unelsen = st.text_input("Үнэлсэн харилцагчийн менежер:")
+
+# Өнөөдрийн огноо авах
+today = date.today().strftime("%Y-%m-%d")
+
+st.text_input("Огноо:", value=today, disabled=True)
