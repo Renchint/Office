@@ -46,28 +46,31 @@ selected_khoroo = st.selectbox("Хороо сонгоно уу:", khoroo_options
 
 # Байрны дугаар сонгох
 filtered_df2 = filtered_df[filtered_df['Хороо'] == selected_khoroo]
-bair_options = sorted(filtered_df2['Байрны дугаар'].dropna().unique().tolist(),
-    key=lambda x: str(x))
 
+# Байрны дугаар болон барилгын нэрийг хослуулан сонголт үүсгэх
+bair_options = filtered_df2.apply(
+    lambda row: f"{row['Байрны дугаар']} - {row['Барилгын нэр']}", axis=1
+).tolist()
+
+# Байрны дугаар сонгох
 selected_bair = st.selectbox("Байрны дугаар сонгоно уу:", bair_options)
 
-# Байрны мэдээллүүдийг харуулах, байрны давхар сонгох
-matched_row = filtered_df2[
-    filtered_df2['Байрны дугаар'] == selected_bair
-]
-
-if not matched_row.empty:
-    row = matched_row.iloc[0]
-
- # Байрны үндсэн мэдээлэл box дотор
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.success(
-            f"**Барилгын нэр:** {row['Барилгын нэр']}  \n"
-            f"**Нийт давхарын тоо:** {row['Нийт давхарын тоо']}  \n"
-            f"**Ашиглалтад орсон он:** {row['Ашиглалтад орсон он']}"
-        )
+# Сонгосон байрны мэдээллийг шүүх
+if selected_bair:
+    selected_bair_number, selected_bair_name = selected_bair.split(' - ', 1)
+    matched_row = filtered_df2[
+        (filtered_df2['Байрны дугаар'].astype(str).str.strip() == selected_bair_number.strip()) &
+        (filtered_df2['Барилгын нэр'].str.strip() == selected_bair_name.strip())
+    ]
+    if not matched_row.empty:
+        row = matched_row.iloc[0]
+        col1, col2 = st.columns(2)
+        with col1:
+            st.success(
+                f"**Барилгын нэр:** {row['Барилгын нэр']}  \n"
+                f"**Нийт давхарын тоо:** {row['Нийт давхарын тоо']}  \n"
+                f"**Ашиглалтад орсон он:** {row['Ашиглалтад орсон он']}"
+            )
 
     with col2:
 
@@ -184,11 +187,7 @@ with col2:
 st.subheader('Үнэлгээ:')
 
 # ТОХИРСОН ҮНЭЛГЭЭГ АВАХ
-matched_row = df[
-    (df['Дүүрэг'] == selected_district) &
-    (df['Хороо'] == selected_khoroo) &
-    (df['Байрны дугаар'] == selected_bair)
-]
+
 
 if not matched_row.empty:
     base_price = matched_row.iloc[0]['Үнэлгээ']
